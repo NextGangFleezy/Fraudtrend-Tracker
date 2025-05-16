@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+import pandas as pd
 from utils.data_processing import load_data, search_fraud_data
 from utils.visualization import create_overview_chart
 from assets.images import get_image_url
@@ -21,22 +22,26 @@ st.set_page_config(
 
 # Check for DATABASE_URL and initialize database
 if 'db_initialized' not in st.session_state:
-    # Check if DATABASE_URL is available
-    database_url = os.environ.get('DATABASE_URL')
-    
-    if database_url:
-        st.session_state.db_initialized = True
-        # Initialize database and tables
-        init_success = init_database()
-        if init_success:
-            # Load sample data if needed (only in development)
-            load_sample_data_to_database(100)
-            logger.info("Database initialized successfully")
+    try:
+        # Check if DATABASE_URL is available
+        database_url = os.environ.get('DATABASE_URL')
+        
+        if database_url:
+            st.session_state.db_initialized = True
+            # Initialize database and tables
+            init_success = init_database()
+            if init_success:
+                # Load sample data if needed (only in development)
+                load_sample_data_to_database(100)
+                logger.info("Database initialized successfully")
+            else:
+                logger.warning("Failed to initialize database")
         else:
-            logger.warning("Failed to initialize database")
-    else:
+            st.session_state.db_initialized = False
+            logger.warning("No DATABASE_URL environment variable found")
+    except Exception as e:
         st.session_state.db_initialized = False
-        logger.warning("No DATABASE_URL environment variable found")
+        logger.error(f"Error initializing database: {str(e)}")
 
 # Initialize session state
 if 'data' not in st.session_state:

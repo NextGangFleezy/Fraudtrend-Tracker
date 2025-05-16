@@ -2,92 +2,93 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import altair as alt
 from datetime import datetime, timedelta
+import streamlit as st
 
 def create_overview_chart(df):
     """
     Create an overview line chart of fraud cases over time
     Uses actual data from the dataset
     """
-    # Create empty figure with appropriate layout
-    fig = go.Figure()
-    
-    # Set layout with proper styling
-    fig.update_layout(
-        title="Fraud Cases Over Time",
-        xaxis_title="Date",
-        yaxis_title="Number of Cases",
-        template="plotly_dark",
-        height=400,
-        margin=dict(l=40, r=40, t=40, b=40),
-        hovermode="x unified"
-    )
-    
     try:
         if df is not None and not df.empty and 'detection_date' in df.columns:
             # Make sure detection_date is datetime type
             df['detection_date'] = pd.to_datetime(df['detection_date'])
             
             # Group by month and count cases
-            df['month'] = df['detection_date'].dt.to_period('M')
-            monthly_counts = df.groupby('month').size().reset_index(name='count')
-            monthly_counts['month_start'] = monthly_counts['month'].dt.to_timestamp()
+            df_copy = df.copy()
+            df_copy['month'] = df_copy['detection_date'].dt.strftime('%Y-%m')
+            monthly_counts = df_copy.groupby('month').size().reset_index(name='count')
             
-            # Sort by date
-            monthly_counts = monthly_counts.sort_values('month_start')
-            
-            # Add trace with actual data
-            fig.add_trace(
-                go.Scatter(
-                    x=monthly_counts['month_start'],
-                    y=monthly_counts['count'],
-                    mode='lines+markers',
-                    name='Fraud Cases',
-                    line=dict(color='#4F8BF9', width=2)
-                )
+            # Create the figure
+            fig = px.line(
+                monthly_counts, 
+                x='month', 
+                y='count',
+                markers=True,
+                title="Fraud Cases Over Time",
+                labels={"month": "Date", "count": "Number of Cases"}
             )
+            
+            # Update layout
+            fig.update_layout(
+                template="plotly_dark",
+                height=400,
+                margin=dict(l=40, r=40, t=40, b=40),
+                hovermode="x unified"
+            )
+            
+            return fig
         else:
-            # Add empty trace with proper structure
-            fig.add_trace(
-                go.Scatter(
-                    x=[],
-                    y=[],
-                    mode='lines',
-                    name='Fraud Cases',
-                    line=dict(color='#4F8BF9', width=2)
-                )
-            )
-            
-            # Add annotation that this is waiting for real data
-            fig.add_annotation(
-                x=0.5, y=0.5,
-                xref="paper", yref="paper",
-                text="Visualization will appear when data is loaded",
-                showarrow=False,
-                font=dict(size=14)
-            )
-    except Exception as e:
-        # If there's an error, show an empty chart with an error message
-        fig.add_trace(
-            go.Scatter(
+            # Create empty figure
+            fig = px.line(
                 x=[],
                 y=[],
-                mode='lines',
-                name='Fraud Cases',
-                line=dict(color='#4F8BF9', width=2)
+                title="Fraud Cases Over Time",
+                labels={"x": "Date", "y": "Number of Cases"}
             )
+            
+            fig.update_layout(
+                template="plotly_dark",
+                height=400,
+                margin=dict(l=40, r=40, t=40, b=40),
+                annotations=[{
+                    "text": "Visualization will appear when data is loaded",
+                    "xref": "paper",
+                    "yref": "paper",
+                    "x": 0.5,
+                    "y": 0.5,
+                    "showarrow": False,
+                    "font": {"size": 14}
+                }]
+            )
+            
+            return fig
+    except Exception as e:
+        # If there's an error, show an empty chart with an error message
+        fig = px.line(
+            x=[],
+            y=[],
+            title="Fraud Cases Over Time",
+            labels={"x": "Date", "y": "Number of Cases"}
         )
         
-        fig.add_annotation(
-            x=0.5, y=0.5,
-            xref="paper", yref="paper",
-            text="Error creating visualization",
-            showarrow=False,
-            font=dict(size=14, color="red")
+        fig.update_layout(
+            template="plotly_dark",
+            height=400,
+            margin=dict(l=40, r=40, t=40, b=40),
+            annotations=[{
+                "text": f"Error creating visualization",
+                "xref": "paper",
+                "yref": "paper",
+                "x": 0.5,
+                "y": 0.5,
+                "showarrow": False,
+                "font": {"size": 14, "color": "red"}
+            }]
         )
-    
-    return fig
+        
+        return fig
 
 def create_fraud_type_chart(df):
     """
