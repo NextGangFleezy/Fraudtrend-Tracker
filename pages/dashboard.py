@@ -30,9 +30,13 @@ st.write("Interactive visualization of fraud trends and patterns")
 st.sidebar.header("Dashboard Filters")
 
 with st.sidebar.expander("Date Range", expanded=True):
+    # Use default dates instead of None values
+    from datetime import datetime, timedelta
+    today = datetime.now().date()
+    month_ago = today - timedelta(days=30)
     date_range = st.date_input(
         "Select Date Range",
-        value=[None, None],
+        value=[month_ago, today],
         help="Filter data by date range"
     )
 

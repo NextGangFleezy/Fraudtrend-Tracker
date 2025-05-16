@@ -35,9 +35,13 @@ time_unit = st.sidebar.selectbox(
 
 # Date range 
 with st.sidebar.expander("Date Range", expanded=True):
+    # Use default dates instead of None values
+    from datetime import datetime, timedelta
+    today = datetime.now().date()
+    month_ago = today - timedelta(days=30)
     trend_date_range = st.date_input(
         "Select Date Range",
-        value=[None, None],
+        value=[month_ago, today],
         help="Analyze trends within this date range"
     )
 

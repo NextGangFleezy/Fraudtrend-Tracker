@@ -34,9 +34,13 @@ search_query = st.sidebar.text_input(
 )
 
 with st.sidebar.expander("Date Range", expanded=True):
+    # Use default dates instead of None values
+    from datetime import datetime, timedelta
+    today = datetime.now().date()
+    month_ago = today - timedelta(days=30)
     date_range = st.date_input(
         "Select Date Range",
-        value=[None, None],
+        value=[month_ago, today],
         help="Filter cases by date range"
     )
 
@@ -69,7 +73,7 @@ if st.session_state.selected_case is None:
     
     # Sample empty table structure
     empty_table = pd.DataFrame(
-        columns=['Case ID', 'Date', 'Type', 'Amount', 'Risk Level', 'Status']
+        [], columns=['Case ID', 'Date', 'Type', 'Amount', 'Risk Level', 'Status']
     )
     st.dataframe(empty_table, use_container_width=True)
     
@@ -181,7 +185,7 @@ else:
         
         # Similar cases table (would be populated with real data in production)
         empty_similar = pd.DataFrame(
-            columns=['Case ID', 'Similarity Score', 'Fraud Type', 'Amount', 'Date']
+            [], columns=['Case ID', 'Similarity Score', 'Fraud Type', 'Amount', 'Date']
         )
         st.dataframe(empty_similar, use_container_width=True)
         

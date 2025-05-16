@@ -82,7 +82,7 @@ if analysis_method == "Clustering":
     
     # Create empty visualization structure
     clusters_viz = visualize_clusters(st.session_state.data, None)
-    st.plotly_chart(clusters_viz, use_container_width=True)
+    st.plotly_chart(clusters_viz, use_container_width=True, key="clusters_main_viz")
     
     # Cluster details
     st.subheader("Cluster Details")
@@ -116,7 +116,7 @@ if analysis_method == "Clustering":
                     showarrow=False,
                     font=dict(size=12)
                 )
-                st.plotly_chart(features_chart, use_container_width=True)
+                st.plotly_chart(features_chart, use_container_width=True, key=f"features_cluster_{i}")
     
     # Sample cases in each cluster
     st.subheader("Sample Cases in Selected Cluster")
@@ -124,7 +124,7 @@ if analysis_method == "Clustering":
     
     # This would show actual cases in the selected cluster in a real application
     empty_cluster_cases = pd.DataFrame(
-        columns=['Case ID', 'Fraud Type', 'Amount', 'Risk Level', 'Date']
+        [], columns=['Case ID', 'Fraud Type', 'Amount', 'Risk Level', 'Date']
     )
     st.dataframe(empty_cluster_cases, use_container_width=True)
 
@@ -152,7 +152,7 @@ elif analysis_method == "Anomaly Detection":
         showarrow=False,
         font=dict(size=14)
     )
-    st.plotly_chart(anomaly_viz, use_container_width=True)
+    st.plotly_chart(anomaly_viz, use_container_width=True, key="anomaly_viz")
     
     # Anomaly details
     st.subheader("Detected Anomalies")
@@ -198,7 +198,7 @@ elif analysis_method == "Anomaly Detection":
                     showarrow=False,
                     font=dict(size=12)
                 )
-                st.plotly_chart(deviation_chart, use_container_width=True)
+                st.plotly_chart(deviation_chart, use_container_width=True, key=f"deviation_chart_{i}")
 
 else:  # Association Rules
     st.header("Fraud Association Rules")
