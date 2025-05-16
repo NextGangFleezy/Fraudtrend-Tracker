@@ -1,7 +1,15 @@
 import streamlit as st
-from utils.data_processing import load_sample_data, search_fraud_data
+import os
+from utils.data_processing import load_data, search_fraud_data
 from utils.visualization import create_overview_chart
 from assets.images import get_image_url
+from utils.db_connection import init_database, get_database_connection
+from utils.sample_data_generator import load_sample_data_to_database
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Configure page settings
 st.set_page_config(
@@ -11,9 +19,28 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Check for DATABASE_URL and initialize database
+if 'db_initialized' not in st.session_state:
+    # Check if DATABASE_URL is available
+    database_url = os.environ.get('DATABASE_URL')
+    
+    if database_url:
+        st.session_state.db_initialized = True
+        # Initialize database and tables
+        init_success = init_database()
+        if init_success:
+            # Load sample data if needed (only in development)
+            load_sample_data_to_database(100)
+            logger.info("Database initialized successfully")
+        else:
+            logger.warning("Failed to initialize database")
+    else:
+        st.session_state.db_initialized = False
+        logger.warning("No DATABASE_URL environment variable found")
+
 # Initialize session state
 if 'data' not in st.session_state:
-    st.session_state.data = load_sample_data()
+    st.session_state.data = load_data()
     
 if 'search_query' not in st.session_state:
     st.session_state.search_query = ""
@@ -30,6 +57,11 @@ if 'filter_options' not in st.session_state:
 st.image(get_image_url("cybersecurity", 0), width=120)
 st.title("FraudLens")
 st.subheader("A centralized fraud trend analysis platform")
+
+# Database connection status
+if not os.environ.get('DATABASE_URL'):
+    # Don't show a warning since we're using test data as requested by the user
+    pass
 
 # Main search bar
 with st.container():
