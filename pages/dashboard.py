@@ -67,7 +67,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Fraud Cases by Type")
     fraud_type_chart = create_fraud_type_chart(st.session_state.data)
-    st.plotly_chart(fraud_type_chart, use_container_width=True)
+    st.plotly_chart(fraud_type_chart, use_container_width=True, key="fraud_type_chart")
 
 with col2:
     st.subheader("Trend by Month")
@@ -84,7 +84,7 @@ with col2:
         showarrow=False,
         font=dict(size=14)
     )
-    st.plotly_chart(date_trend_chart, use_container_width=True)
+    st.plotly_chart(date_trend_chart, use_container_width=True, key="date_trend_chart")
 
 # Second row of visualizations
 st.header("Detailed Analysis")
@@ -105,7 +105,7 @@ with col1:
         showarrow=False,
         font=dict(size=14)
     )
-    st.plotly_chart(risk_chart, use_container_width=True)
+    st.plotly_chart(risk_chart, use_container_width=True, key="risk_level_chart")
 
 with col2:
     st.subheader("Amount Distribution")
@@ -122,12 +122,12 @@ with col2:
         showarrow=False,
         font=dict(size=14)
     )
-    st.plotly_chart(amount_chart, use_container_width=True)
+    st.plotly_chart(amount_chart, use_container_width=True, key="amount_distribution_chart")
 
 # Geographic distribution
 st.header("Geographic Distribution")
 geo_map = create_geographic_map(st.session_state.data)
-st.plotly_chart(geo_map, use_container_width=True)
+st.plotly_chart(geo_map, use_container_width=True, key="geographic_map")
 
 # Heatmap analysis
 st.header("Correlation Analysis")
@@ -140,7 +140,7 @@ with heatmap_options[2]:
     z_var = st.selectbox("Value", ["Count", "Average Amount", "Max Amount"])
 
 heatmap = create_heatmap(st.session_state.data, x_var, y_var, z_var)
-st.plotly_chart(heatmap, use_container_width=True)
+st.plotly_chart(heatmap, use_container_width=True, key="heatmap_analysis")
 
 # Export options
 st.header("Export Options")

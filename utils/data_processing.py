@@ -18,38 +18,47 @@ logger = logging.getLogger(__name__)
 
 def load_data():
     """
-    Load fraud data from the database.
-    If no database connection is available, returns sample test data.
+    Load fraud data from the database or from custom data files.
+    Priority: 1. Database if available, 2. Custom data files, 3. Generated test data
     """
     try:
-        # Get database session
+        # Import here to avoid circular imports
+        from utils.custom_data_loader import load_custom_fraud_data, merge_with_generated_data
+        
+        # First, check for database connection
         session = get_session()
         
-        if not session:
-            logger.info("Database connection not available. Using sample test data.")
-            # Generate sample test data instead of an empty DataFrame
-            return generate_test_data(200)  # Generate 200 test records
-        
-        # Query all fraud cases
-        cases = session.query(FraudCase).all()
-        
-        # Convert to DataFrame
-        df = query_to_dataframe(cases)
-        
-        # Close session
-        session.close()
-        
-        # If we got no data from database, use sample data
-        if df.empty:
-            logger.info("No data found in database. Using sample test data.")
-            return generate_test_data(200)  # Generate 200 test records
+        if session:
+            # Query all fraud cases from database
+            cases = session.query(FraudCase).all()
             
-        return df
+            # Convert to DataFrame
+            db_df = query_to_dataframe(cases)
+            
+            # Close session
+            session.close()
+            
+            if not db_df.empty:
+                logger.info(f"Loaded {len(db_df)} records from database")
+                return db_df
         
+        # If we get here, either no database connection or no data in database
+        # Try to load custom data from the provided JSON file
+        custom_df = load_custom_fraud_data()
+        
+        if not custom_df.empty:
+            # Merge with some generated data to have a fuller dataset
+            generated_df = generate_test_data(100)
+            return merge_with_generated_data(custom_df, generated_df, custom_ratio=0.3)
+        
+        # If no custom data, use generated test data
+        logger.info("No custom data found. Using generated test data.")
+        return generate_test_data(200)  # Generate 200 test records
+            
     except Exception as e:
         logger.error(f"Error loading data: {str(e)}")
         st.error(f"Error loading data: {str(e)}")
-        # Return test data as a fallback
+        # Return generated test data as a fallback
         return generate_test_data(200)
 
 def generate_test_data(num_records=100):

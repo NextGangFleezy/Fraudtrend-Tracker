@@ -1,0 +1,57 @@
+[
+    {
+        "case_id": "C001",
+        "date": "2025-05-01",
+        "tags": [
+            "phishing",
+            "Apple ID"
+        ],
+        "description": "Customer received an email impersonating Apple Support asking for login credentials.",
+        "status": "confirmed_fraud",
+        "analyst_notes": "Similar email pattern detected last month. Subject line: 'Verify your Apple ID now'."
+    },
+    {
+        "case_id": "C002",
+        "date": "2025-05-03",
+        "tags": [
+            "carding",
+            "gift card"
+        ],
+        "description": "Multiple gift card purchases attempted using compromised credit cards.",
+        "status": "confirmed_fraud",
+        "analyst_notes": "IP address matched a previously flagged carding operation from overseas."
+    },
+    {
+        "case_id": "C003",
+        "date": "2025-05-05",
+        "tags": [
+            "social engineering",
+            "AppleCare"
+        ],
+        "description": "Caller impersonated AppleCare agent to gain access to device reset credentials.",
+        "status": "confirmed_fraud",
+        "analyst_notes": "Victim was manipulated into giving device serial number and passcode."
+    },
+    {
+        "case_id": "C004",
+        "date": "2025-05-07",
+        "tags": [
+            "account takeover",
+            "VPN"
+        ],
+        "description": "Unusual login via VPN followed by changes to account email and password.",
+        "status": "confirmed_fraud",
+        "analyst_notes": "Previous login IP from US; takeover IP from Eastern Europe. Pattern matches known ATO tactics."
+    },
+    {
+        "case_id": "C005",
+        "date": "2025-05-10",
+        "tags": [
+            "false positive",
+            "user error"
+        ],
+        "description": "Customer mistyped password and was locked out, flagged as potential fraud.",
+        "status": "false_positive",
+        "analyst_notes": "No compromise found. Login attempt from usual device and IP."
+    }
+]
