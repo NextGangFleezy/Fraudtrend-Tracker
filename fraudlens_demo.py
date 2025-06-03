@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 import random
 import json
 import os
-from utils.theme_manager import get_theme_selection_widget, initialize_theme, inject_theme_css, apply_theme_to_charts
 
 # Set page configuration
 st.set_page_config(
@@ -17,8 +16,46 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Initialize theme system
-initialize_theme()
+# Custom CSS for better styling
+st.markdown("""
+<style>
+    .main-header {
+        font-size: 2.5rem;
+        color: #4F8BF9;
+        margin-bottom: 0;
+    }
+    .sub-header {
+        font-size: 1.5rem;
+        color: #FAFAFA;
+        margin-top: 0;
+    }
+    .metric-card {
+        background-color: #1E2130;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .fraud-type-tag {
+        background-color: #4F8BF9;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+    }
+    .risk-high {
+        color: #FF4B4B;
+        font-weight: bold;
+    }
+    .risk-medium {
+        color: #FFA500;
+        font-weight: bold;
+    }
+    .risk-low {
+        color: #00CC96;
+        font-weight: bold;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Load and prepare demo data
 @st.cache_data
@@ -141,39 +178,31 @@ def load_demo_data():
 fraud_data = load_demo_data()
 
 # Create time-series chart
-def create_trend_chart(df, theme=None):
+def create_trend_chart(df):
     # Group by month and count cases
     df['month'] = df['detection_date'].dt.strftime('%Y-%m')
     monthly_counts = df.groupby('month').size().reset_index(name='count')
     
-    # Create line chart with theme colors
+    # Create line chart
     fig = px.line(
         monthly_counts, 
         x='month', 
         y='count',
         markers=True,
         title="Fraud Cases Over Time",
-        labels={"month": "Month", "count": "Number of Cases"},
-        color_discrete_sequence=[chart_theme['colors'][0]]  # Use theme primary color
+        labels={"month": "Month", "count": "Number of Cases"}
     )
     
     fig.update_layout(
         height=350,
         margin=dict(l=40, r=40, t=60, b=40),
-        hovermode="x unified",
-        paper_bgcolor=chart_theme['background_color'],
-        plot_bgcolor=chart_theme['background_color'],
-        font=dict(color=chart_theme['text_color'])
+        hovermode="x unified"
     )
-    
-    # Update axis colors to match theme
-    fig.update_xaxes(gridcolor=chart_theme['grid_color'], linecolor=chart_theme['grid_color'])
-    fig.update_yaxes(gridcolor=chart_theme['grid_color'], linecolor=chart_theme['grid_color'])
     
     return fig
 
 # Create fraud type breakdown chart
-def create_type_chart(df, theme=None):
+def create_type_chart(df):
     type_counts = df['fraud_type'].value_counts().reset_index()
     type_counts.columns = ['fraud_type', 'count']
     
@@ -183,37 +212,21 @@ def create_type_chart(df, theme=None):
         y='count',
         title="Fraud Cases by Type",
         labels={"fraud_type": "Fraud Type", "count": "Number of Cases"},
-        color='fraud_type',
-        color_discrete_sequence=chart_theme['colors']  # Use theme colors
+        color='count',
+        color_continuous_scale=px.colors.sequential.Blues
     )
     
     fig.update_layout(
         height=350,
         margin=dict(l=40, r=40, t=60, b=40),
-        paper_bgcolor=chart_theme['background_color'],
-        plot_bgcolor=chart_theme['background_color'],
-        font=dict(color=chart_theme['text_color'])
     )
-    
-    # Update axis colors to match theme
-    fig.update_xaxes(gridcolor=chart_theme['grid_color'], linecolor=chart_theme['grid_color'])
-    fig.update_yaxes(gridcolor=chart_theme['grid_color'], linecolor=chart_theme['grid_color'])
     
     return fig
 
 # Create risk level pie chart
-def create_risk_chart(df, theme=None):
+def create_risk_chart(df):
     risk_counts = df['risk_level'].value_counts().reset_index()
     risk_counts.columns = ['risk_level', 'count']
-    
-    # Get theme-specific colors for risk levels
-    from utils.theme_manager import COLOR_SCHEMES
-    theme_colors = COLOR_SCHEMES[selected_theme]
-    risk_colors = {
-        'High': theme_colors['danger'],
-        'Medium': theme_colors['warning'],
-        'Low': theme_colors['success']
-    }
     
     fig = px.pie(
         risk_counts,
@@ -221,15 +234,12 @@ def create_risk_chart(df, theme=None):
         names='risk_level',
         title="Risk Level Distribution",
         color='risk_level',
-        color_discrete_map=risk_colors
+        color_discrete_map={'High': '#FF4B4B', 'Medium': '#FFA500', 'Low': '#00CC96'}
     )
     
     fig.update_layout(
         height=350,
         margin=dict(l=40, r=40, t=60, b=40),
-        paper_bgcolor=chart_theme['background_color'],
-        plot_bgcolor=chart_theme['background_color'],
-        font=dict(color=chart_theme['text_color'])
     )
     
     return fig
@@ -313,9 +323,6 @@ def find_similar_cases(case_id, df, top_n=5):
     # Return top N similar cases
     return df_copy.sort_values('similarity', ascending=False).head(top_n)
 
-# Apply the selected theme CSS
-inject_theme_css()
-
 # Define sidebar for navigation
 st.sidebar.markdown("<h1 style='text-align: center;'>FraudLens</h1>", unsafe_allow_html=True)
 st.sidebar.markdown("<p style='text-align: center;'>Fraud Analysis Platform</p>", unsafe_allow_html=True)
@@ -324,14 +331,7 @@ st.sidebar.markdown("---")
 # Navigation
 page = st.sidebar.radio("Navigation", ["Dashboard", "Case Explorer", "Pattern Analysis", "Trend Forecasting"])
 
-# Theme selector - Add the personalized mood-based color schemes
-selected_theme = get_theme_selection_widget()
-
-# Apply the current theme to chart configurations
-chart_theme = apply_theme_to_charts(selected_theme)
-
 # Add sidebar filters that apply to all pages
-st.sidebar.markdown("---")
 st.sidebar.markdown("## Filters")
 
 # Date range filter
