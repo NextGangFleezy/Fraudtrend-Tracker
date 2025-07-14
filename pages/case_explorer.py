@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from utils.data_processing import load_sample_data, search_fraud_data, get_case_details
+from utils.data_processing import load_data, search_fraud_data, get_case_details
 from utils.pattern_recognition import find_similar_cases
 from assets.images import get_image_url
 
@@ -15,7 +15,7 @@ st.set_page_config(
 
 # Initialize session state
 if 'data' not in st.session_state:
-    st.session_state.data = load_sample_data()
+    st.session_state.data = load_data()
 
 if 'selected_case' not in st.session_state:
     st.session_state.selected_case = None

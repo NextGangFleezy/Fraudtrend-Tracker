@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from utils.data_processing import load_sample_data
+from utils.data_processing import load_data
 from utils.pattern_recognition import (
     identify_patterns, 
     visualize_clusters,
@@ -20,7 +20,7 @@ st.set_page_config(
 
 # Initialize session state
 if 'data' not in st.session_state:
-    st.session_state.data = load_sample_data()
+    st.session_state.data = load_data()
 
 if 'patterns' not in st.session_state:
     st.session_state.patterns = None

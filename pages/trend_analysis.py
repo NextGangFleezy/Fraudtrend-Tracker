@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from utils.data_processing import load_sample_data, prepare_time_series_data
+from utils.data_processing import load_data, prepare_time_series_data
 from utils.visualization import create_trend_forecast
 from assets.images import get_image_url
 
@@ -16,7 +16,7 @@ st.set_page_config(
 
 # Initialize session state
 if 'data' not in st.session_state:
-    st.session_state.data = load_sample_data()
+    st.session_state.data = load_data()
 
 # Header with image
 st.image(get_image_url("data visualization", 2), width=150)
